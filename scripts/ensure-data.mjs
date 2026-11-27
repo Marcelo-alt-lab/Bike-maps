@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_DIR = path.resolve(__dirname, '..', 'data');
+const PUBLIC_DIR = path.resolve(__dirname, '..', 'public');
 
 const RAW_BASE =
   process.env.BIKEMAPS_DATA_BASE_URL ||
@@ -13,6 +14,7 @@ const RAW_BASE =
 const REQUIRED_FILES = ['ciclovias.json', 'geometries.json'];
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
+fs.mkdirSync(PUBLIC_DIR, { recursive: true });
 
 for (const name of REQUIRED_FILES) {
   const target = path.join(DATA_DIR, name);
