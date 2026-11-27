@@ -35,6 +35,21 @@ function sendJson(res, statusCode, payload) {
 }
 
 function readJsonBody(req, maxBytes = 1024 * 1024) {
+  if (req.body !== undefined) {
+    if (typeof req.body === 'object' && req.body !== null) {
+      return Promise.resolve(req.body);
+    }
+    if (typeof req.body === 'string') {
+      if (!req.body.trim()) return Promise.resolve({});
+      try {
+        return Promise.resolve(JSON.parse(req.body));
+      } catch {
+        const err = new Error('JSON inválido en el cuerpo de la petición.');
+        err.statusCode = 400;
+        return Promise.reject(err);
+      }
+    }
+  }
   return new Promise((resolve, reject) => {
     let raw = '';
     let size = 0;
@@ -84,9 +99,9 @@ function buildCorridors(records) {
 }
 
 /**
- * Create the BikeMaps HTTP API server instance.
+ * Create the BikeMaps HTTP request handler (shared by local Node server and Vercel Functions).
  */
-export function createServer() {
+export function createRequestHandler() {
   const { ciclovias, geometries } = loadData();
   const engine = createRoutingEngine({
     records: ciclovias.records,
@@ -97,7 +112,7 @@ export function createServer() {
   });
   const corridors = buildCorridors(ciclovias.records);
 
-  const server = http.createServer(async (req, res) => {
+  return async (req, res) => {
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
         'Access-Control-Allow-Origin': '*',
@@ -109,10 +124,14 @@ export function createServer() {
     }
 
     const urlObj = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
-    const pathname = urlObj.pathname;
+    const rewrittenPath = urlObj.searchParams.get('__path');
+    const rawPath = rewrittenPath
+      ? (rewrittenPath.startsWith('/') ? rewrittenPath : `/${rewrittenPath}`)
+      : urlObj.pathname;
+    const pathname = rawPath.length > 1 ? rawPath.replace(/\/+$/, '') : rawPath;
 
     try {
-      if (req.method === 'GET' && pathname === '/api/health') {
+      if (req.method === 'GET' && (pathname === '/' || pathname === '/api/health')) {
         sendJson(res, 200, {
           ok: true,
           service: 'bikemaps-backend',
@@ -205,9 +224,14 @@ export function createServer() {
       const status = err.statusCode || 500;
       sendJson(res, status, { error: err.message || 'Error interno del servidor.' });
     }
-  });
+  };
+}
 
-  return server;
+/**
+ * Create the BikeMaps HTTP API server instance.
+ */
+export function createServer() {
+  return http.createServer(createRequestHandler());
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
