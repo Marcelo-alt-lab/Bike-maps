@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Backend API de enrutamiento óptimo sobre la red de ciclovías existentes de Lima Metropolitana (MML).",
   "scripts": {
+    "build": "node scripts/ensure-data.mjs",
     "start": "node src/server.js",
     "test": "node --test"
   },
