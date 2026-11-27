@@ -14,7 +14,11 @@ API REST en Node.js (ESM, sin dependencias externas) para calcular la ruta ópti
 ## Requisitos
 - Node.js 20 o superior.
 
-## Ejecución
+## Despliegue en producción (Vercel)
+- **URL pública:** https://bikemaps-backend.vercel.app
+- **Healthcheck:** https://bikemaps-backend.vercel.app/api/health
+
+## Ejecución local
 ```bash
 npm start
 ```
