@@ -1,0 +1,14 @@
+{
+  "name": "bikemaps-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Backend API de enrutamiento óptimo sobre la red de ciclovías existentes de Lima Metropolitana (MML).",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
