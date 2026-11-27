@@ -15,6 +15,7 @@ const REQUIRED_FILES = ['ciclovias.json', 'geometries.json'];
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
 fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+fs.writeFileSync(path.join(PUBLIC_DIR, 'robots.txt'), 'User-agent: *\nAllow: /\n');
 
 for (const name of REQUIRED_FILES) {
   const target = path.join(DATA_DIR, name);
